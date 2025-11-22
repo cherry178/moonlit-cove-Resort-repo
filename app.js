@@ -682,7 +682,7 @@ function updateDrawerTotal() {
 async function renderBookings() {
   const container = qs("#bookingsContainer");
   if (!container) {
-    console.warn("❌ Bookings container not found - element #bookingsContainer missing");
+    console.error("❌ Bookings container not found - element #bookingsContainer missing");
     return;
   }
   
@@ -702,13 +702,16 @@ async function renderBookings() {
   try {
     await loadBookings();
     console.log("📋 Bookings to render:", bookings.length, bookings);
+    console.log("📋 Bookings data:", JSON.stringify(bookings, null, 2));
   } catch (error) {
     console.error("❌ Error in loadBookings:", error);
     // Continue to render even if loadBookings fails
   }
 
+  // Always clear and show something
   container.innerHTML = "";
-  if (bookings.length === 0) {
+  
+  if (!bookings || bookings.length === 0) {
     console.log("ℹ️ No bookings found for user");
     // Show helpful message with user ID for debugging
     let debugInfo = `<p class="helper-text">You have no bookings yet. Book a room to see it here.</p>`;
@@ -719,7 +722,8 @@ async function renderBookings() {
       </p>`;
     } else {
       debugInfo += `<p class="helper-text" style="font-size: 0.85em; margin-top: 8px; color: #888;">
-        Debug: Logged in as ${currentUser.id} | API: ${API_BASE_URL}
+        Debug: Logged in as ${currentUser.id} | API: ${API_BASE_URL}<br>
+        <button onclick="loadBookings().then(() => renderBookings())" class="btn small" style="margin-top: 8px;">🔄 Retry Loading</button>
       </p>`;
     }
     container.innerHTML = debugInfo;
@@ -734,45 +738,56 @@ async function renderBookings() {
     roomById[r.id] = r;
   });
 
-  bookings
-    .slice()
-    .sort((a, b) => new Date(a.from_date) - new Date(b.from_date))
-    .forEach((booking) => {
-      const room = roomById[booking.room_id];
-      // Handle date - can be ISO string or date string
-      const fromDateStr = booking.from_date.split('T')[0]; // Get just the date part
-      const checkInDate = new Date(fromDateStr);
-      const checkoutDate = new Date(checkInDate);
-      checkoutDate.setDate(checkoutDate.getDate() + booking.nights);
+  try {
+    bookings
+      .slice()
+      .sort((a, b) => new Date(a.from_date) - new Date(b.from_date))
+      .forEach((booking, index) => {
+        console.log(`Rendering booking ${index + 1}:`, booking);
+        const room = roomById[booking.room_id];
+        // Handle date - can be ISO string or date string
+        let fromDateStr = booking.from_date;
+        if (typeof fromDateStr === 'string' && fromDateStr.includes('T')) {
+          fromDateStr = fromDateStr.split('T')[0]; // Get just the date part
+        }
+        const checkInDate = new Date(fromDateStr);
+        const checkoutDate = new Date(checkInDate);
+        checkoutDate.setDate(checkoutDate.getDate() + booking.nights);
 
-      const servicesList = booking.services || "None";
+        const servicesList = booking.services || "None";
 
-      const card = document.createElement("div");
-      card.className = "booking-card";
-      card.innerHTML = `
-        <div class="booking-header">
-          <div>
-            <div class="booking-title">${
-              booking.room_name || room?.name || "Room " + booking.room_id
-            }</div>
-            <div class="helper-text">
-              ${checkInDate.toDateString()} → ${checkoutDate.toDateString()}
+        const card = document.createElement("div");
+        card.className = "booking-card";
+        card.innerHTML = `
+          <div class="booking-header">
+            <div>
+              <div class="booking-title">${
+                booking.room_name || room?.name || "Room " + booking.room_id
+              }</div>
+              <div class="helper-text">
+                ${checkInDate.toDateString()} → ${checkoutDate.toDateString()}
+              </div>
             </div>
           </div>
-        </div>
-        <div class="booking-meta">
-          <span><strong>Nights:</strong> ${booking.nights}</span>
-          <span><strong>Guests:</strong> ${booking.guests || "-"}</span>
-          <span><strong>Services:</strong> ${servicesList}</span>
-        </div>
-        <div class="booking-actions">
-          <button class="btn small ghost" data-cancel-id="${booking.id}">
-            Cancel booking
-          </button>
-        </div>
-      `;
-      container.appendChild(card);
-    });
+          <div class="booking-meta">
+            <span><strong>Nights:</strong> ${booking.nights}</span>
+            <span><strong>Guests:</strong> ${booking.guests || "-"}</span>
+            <span><strong>Services:</strong> ${servicesList}</span>
+          </div>
+          <div class="booking-actions">
+            <button class="btn small ghost" data-cancel-id="${booking.id}">
+              Cancel booking
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+        console.log(`✅ Booking card ${index + 1} appended to container`);
+      });
+    console.log(`✅ All ${bookings.length} booking cards rendered`);
+  } catch (error) {
+    console.error("❌ Error rendering booking cards:", error);
+    container.innerHTML = `<p class="helper-text" style="color: #ff6b6b;">Error rendering bookings: ${error.message}</p>`;
+  }
 
   container
     .querySelectorAll("button[data-cancel-id]")
