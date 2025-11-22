@@ -257,12 +257,13 @@ async function loadBookings() {
     return [];
   }
   try {
+    console.log("Loading bookings for user:", currentUser.id);
     const data = await apiRequest(`/bookings?userAuthId=${encodeURIComponent(currentUser.id)}`);
     bookings = data.bookings || [];
-    console.log("✅ Bookings loaded:", bookings.length);
+    console.log("✅ Bookings loaded:", bookings.length, bookings);
     return bookings;
   } catch (error) {
-    console.warn("⚠️ Could not load bookings:", error.message);
+    console.error("❌ Error loading bookings:", error.message);
     // Don't show error toast - just silently fail and show empty bookings
     // This is normal if backend is not available or user has no bookings
     bookings = [];
@@ -909,7 +910,10 @@ function initBookingDrawer() {
       );
       showToast("Booking confirmed! Your room is reserved for these dates.", "success");
       closeBookingDrawer();
+      // Reload bookings and render
+      console.log("Reloading bookings after successful booking...");
       await loadBookings();
+      console.log("Bookings after reload:", bookings.length);
       renderBookings();
       renderRooms();
       // Scroll to bookings section to show the new booking
@@ -918,6 +922,8 @@ function initBookingDrawer() {
         setTimeout(() => {
           bookingsSection.scrollIntoView({ behavior: "smooth", block: "start" });
         }, 500);
+      } else {
+        console.warn("Bookings section not found");
       }
     } catch (error) {
       showToast(error.message || "Failed to create booking. Please try again.", "error");
