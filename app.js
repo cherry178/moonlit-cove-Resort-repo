@@ -660,7 +660,10 @@ function updateDrawerTotal() {
 
 async function renderBookings() {
   const container = qs("#bookingsContainer");
-  if (!container) return;
+  if (!container) {
+    console.warn("Bookings container not found");
+    return;
+  }
   container.innerHTML = "<p class='helper-text'>Loading bookings...</p>";
 
   if (!currentUser) {
@@ -670,6 +673,7 @@ async function renderBookings() {
   }
 
   await loadBookings();
+  console.log("Rendering bookings:", bookings.length);
 
   container.innerHTML = "";
   if (bookings.length === 0) {
@@ -908,6 +912,13 @@ function initBookingDrawer() {
       await loadBookings();
       renderBookings();
       renderRooms();
+      // Scroll to bookings section to show the new booking
+      const bookingsSection = document.getElementById("my-bookings");
+      if (bookingsSection) {
+        setTimeout(() => {
+          bookingsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 500);
+      }
     } catch (error) {
       showToast(error.message || "Failed to create booking. Please try again.", "error");
       renderRooms();
