@@ -1,6 +1,11 @@
 // Moonlit Cove Resort - Frontend with Backend API Integration
 
-const API_BASE_URL = "http://localhost:4000/api";
+// Auto-detect environment and set API URL
+// For production, replace 'YOUR_BACKEND_URL' with your deployed backend URL (e.g., Render, Railway, Heroku)
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const API_BASE_URL = isLocalhost 
+  ? "http://localhost:4000/api"
+  : "YOUR_BACKEND_URL/api"; // TODO: Replace with your deployed backend URL
 
 // Room gallery images mapping (not stored in backend)
 const roomGalleries = {
@@ -145,6 +150,17 @@ async function apiRequest(endpoint, options = {}) {
   }
 }
 
+// Fallback demo rooms data (used when backend is unavailable)
+const fallbackRooms = [
+  { id: "moon-suite", name: "Moon Suite", type: "Suite", capacity: 2, basePrice: 1500, description: "Oceanfront suite with private balcony", tags: ["Ocean View", "Balcony", "King Bed"] },
+  { id: "cove-retreat", name: "Cove Retreat", type: "Deluxe", capacity: 2, basePrice: 2000, description: "Spacious room with stunning cove views", tags: ["Cove View", "Spa Access"] },
+  { id: "garden-moon", name: "Garden Moon", type: "Standard", capacity: 2, basePrice: 1500, description: "Peaceful garden-facing room", tags: ["Garden View", "Quiet"] },
+  { id: "lagoon-premium", name: "Lagoon Premium", type: "Premium", capacity: 3, basePrice: 2500, description: "Premium room with lagoon access", tags: ["Lagoon Access", "Premium"] },
+  { id: "family-cove", name: "Family Cove", type: "Family", capacity: 4, basePrice: 3000, description: "Perfect for families with extra space", tags: ["Family Friendly", "Extra Beds"] },
+  { id: "skyline-loft", name: "Skyline Loft", type: "Loft", capacity: 2, basePrice: 2200, description: "Modern loft with city skyline views", tags: ["City View", "Modern"] },
+  { id: "sunset-cabana", name: "Sunset Cabana", type: "Cabana", capacity: 2, basePrice: 1800, description: "Beachfront cabana for sunset lovers", tags: ["Beachfront", "Sunset View"] },
+];
+
 async function loadRooms() {
   try {
     const params = new URLSearchParams();
@@ -183,10 +199,29 @@ async function loadRooms() {
     return rooms;
   } catch (error) {
     console.error("Error loading rooms:", error);
-    showToast("Failed to load rooms. Make sure the backend is running on port 4000.", "error");
+    // Fallback to demo data if backend is unavailable
+    if (API_BASE_URL.includes("YOUR_BACKEND_URL") || error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
+      console.warn("Backend unavailable, using fallback demo data");
+      rooms = fallbackRooms.map((room) => ({
+        ...room,
+        available: true,
+        ...roomGalleries[room.id], // Add gallery images
+      }));
+      showToast("Showing demo rooms. Backend not connected.", "error");
+      return rooms;
+    }
+    showToast("Failed to load rooms. Please try again.", "error");
     return [];
   }
 }
+
+// Fallback demo services data
+const fallbackServices = [
+  { id: "spa-journey", name: "Spa Journey", description: "Full body massage and relaxation", price: 2000 },
+  { id: "moonlit-dinner", name: "Moonlit Dinner", description: "Private dinner by the ocean", price: 2500 },
+  { id: "breakfast-basket", name: "Breakfast Basket", description: "Gourmet breakfast delivered to your room", price: 1500 },
+  { id: "sunset-cruise", name: "Sunset Cruise", description: "Evening boat ride with refreshments", price: 3000 },
+];
 
 async function loadServices() {
   try {
@@ -194,6 +229,12 @@ async function loadServices() {
     services = data.services;
     return services;
   } catch (error) {
+    // Fallback to demo data if backend is unavailable
+    if (API_BASE_URL.includes("YOUR_BACKEND_URL") || error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
+      console.warn("Backend unavailable, using fallback demo services");
+      services = fallbackServices;
+      return services;
+    }
     showToast("Failed to load services. Please try again.", "error");
     return [];
   }
