@@ -341,10 +341,12 @@ function closeLoginModal() {
 function setUser(user) {
   currentUser = user;
   const loginButton = qs("#loginButton");
+  const refreshButton = qs("#refreshBookingsButton");
   if (user) {
     loginButton.textContent = user.displayName || "Account";
     loginButton.classList.remove("primary");
     loginButton.classList.add("ghost");
+    if (refreshButton) refreshButton.style.display = "inline-block";
     showToast(`Welcome, ${user.displayName || "Guest"}!`, "success");
     dismissLandingScreen();
     // Load and render bookings immediately after login
@@ -352,11 +354,15 @@ function setUser(user) {
     loadBookings().then(() => {
       console.log("Bookings loaded after login:", bookings.length);
       renderBookings();
+    }).catch((err) => {
+      console.error("Error loading bookings after login:", err);
+      renderBookings(); // Still render even on error
     });
   } else {
     loginButton.textContent = "Login";
     loginButton.classList.remove("ghost");
     loginButton.classList.add("primary");
+    if (refreshButton) refreshButton.style.display = "none";
     const bookingsContainer = qs("#bookingsContainer");
     if (bookingsContainer) bookingsContainer.innerHTML = '<p class="helper-text">Login to see and manage your bookings.</p>';
     bookings = [];
@@ -692,8 +698,14 @@ async function renderBookings() {
 
   console.log("👤 Current user:", currentUser.id);
   console.log("🌐 API Base URL:", API_BASE_URL);
-  await loadBookings();
-  console.log("📋 Bookings to render:", bookings.length, bookings);
+  
+  try {
+    await loadBookings();
+    console.log("📋 Bookings to render:", bookings.length, bookings);
+  } catch (error) {
+    console.error("❌ Error in loadBookings:", error);
+    // Continue to render even if loadBookings fails
+  }
 
   container.innerHTML = "";
   if (bookings.length === 0) {
@@ -1002,12 +1014,40 @@ function initQuickBookingForm() {
 
 // ---- Init ----
 
+// Initialize refresh bookings button
+function initRefreshBookings() {
+  const refreshBtn = qs("#refreshBookingsButton");
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", async () => {
+      if (!currentUser) {
+        showToast("Please login first.", "error");
+        return;
+      }
+      refreshBtn.textContent = "🔄 Loading...";
+      refreshBtn.disabled = true;
+      try {
+        await loadBookings();
+        renderBookings();
+        showToast("Bookings refreshed!", "success");
+      } catch (error) {
+        console.error("Error refreshing bookings:", error);
+        showToast("Failed to refresh bookings. Check console for details.", "error");
+        renderBookings(); // Still render even on error
+      } finally {
+        refreshBtn.textContent = "🔄 Refresh Bookings";
+        refreshBtn.disabled = false;
+      }
+    });
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   initLandingScreen();
   initLogin();
   initQuickBookingForm();
   initBookingDrawer();
   initGalleryModal();
+  initRefreshBookings();
   await loadRooms();
   await loadServices();
   renderRooms();
