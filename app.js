@@ -781,8 +781,8 @@ async function renderBookings() {
               <span><strong>Services:</strong> ${servicesList}</span>
             </div>
             <div class="booking-actions">
-              <button class="btn small ghost" data-cancel-id="${booking.id}">
-                Cancel booking
+              <button class="btn small ghost" data-cancel-id="${booking.id}" title="Cancel this booking">
+                ❌ Cancel Booking
               </button>
             </div>
           `;
@@ -809,14 +809,30 @@ async function renderBookings() {
     .forEach((btn) => {
       btn.addEventListener("click", async () => {
         const id = btn.getAttribute("data-cancel-id");
+        const booking = bookings.find(b => b.id == id);
+        const roomName = booking?.room_name || "this booking";
+        
+        // Confirm cancellation
+        if (!confirm(`Are you sure you want to cancel your booking for ${roomName}?`)) {
+          return;
+        }
+        
+        // Disable button during cancellation
+        btn.disabled = true;
+        btn.textContent = "Cancelling...";
+        
         try {
           await cancelBooking(id);
-          showToast("Booking cancelled.", "success");
+          showToast("Booking cancelled successfully!", "success");
+          // Reload bookings and rooms
           await loadBookings();
           renderBookings();
           renderRooms();
         } catch (error) {
-          showToast(error.message || "Failed to cancel booking.", "error");
+          console.error("Error cancelling booking:", error);
+          showToast(error.message || "Failed to cancel booking. Please try again.", "error");
+          btn.disabled = false;
+          btn.textContent = "Cancel booking";
         }
       });
     });

@@ -657,6 +657,21 @@ input:focus {
   justify-content: flex-end;
 }
 
+.booking-actions button {
+  transition: all 0.2s ease;
+}
+
+.booking-actions button:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.booking-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .drawer {
   position: fixed;
   inset: 0;
