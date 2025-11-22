@@ -699,11 +699,18 @@ async function renderBookings() {
   if (bookings.length === 0) {
     console.log("ℹ️ No bookings found for user");
     // Show helpful message with user ID for debugging
-    container.innerHTML =
-      `<p class="helper-text">You have no bookings yet. Book a room to see it here.</p>
-       <p class="helper-text" style="font-size: 0.85em; margin-top: 8px; color: #888;">
-         Debug: Logged in as ${currentUser.id} | API: ${API_BASE_URL}
-       </p>`;
+    let debugInfo = `<p class="helper-text">You have no bookings yet. Book a room to see it here.</p>`;
+    if (isFileProtocol) {
+      debugInfo += `<p class="helper-text" style="font-size: 0.85em; margin-top: 8px; color: #ff6b6b; background: rgba(255,107,107,0.1); padding: 8px; border-radius: 4px;">
+        ⚠️ File protocol detected. Please open from GitHub Pages:<br>
+        <a href="https://cherry178.github.io/moonlit-cove-Resort-repo/" target="_blank" style="color: #4dabf7;">https://cherry178.github.io/moonlit-cove-Resort-repo/</a>
+      </p>`;
+    } else {
+      debugInfo += `<p class="helper-text" style="font-size: 0.85em; margin-top: 8px; color: #888;">
+        Debug: Logged in as ${currentUser.id} | API: ${API_BASE_URL}
+      </p>`;
+    }
+    container.innerHTML = debugInfo;
     return;
   }
   
