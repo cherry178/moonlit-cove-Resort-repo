@@ -1,0 +1,6 @@
+
+> moonlit-cove-resort@1.0.0 start
+> node backend/server.js
+
+Moonlit Cove backend listening on port 4000
+Database initialized and seeded successfully

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moonlit Cove Resort - ER Diagram</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            padding: 40px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 700;
+        }
+        .subtitle {
+            text-align: center;
+            color: #000505;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        .mermaid {
+            text-align: center;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+        .mermaid svg {
+            background: #ffffff !important;
+            font-family: Arial, sans-serif !important;
+        }
+        .mermaid .entityBox {
+            fill: #ffffff !important;
+        }
+        .mermaid .entityLabel {
+            fill: #000000 !important;
+            color: #000000 !important;
+            font-weight: bold !important;
+        }
+        .mermaid .attributeBoxOdd {
+            fill: #f8f9fa !important;
+        }
+        .mermaid .attributeBoxEven {
+            fill: #ffffff !important;
+        }
+        .mermaid .attributeText {
+            fill: #000000 !important;
+            color: #000000 !important;
+        }
+        .mermaid text {
+            fill: #000000 !important;
+            color: #000000 !important;
+            stroke: none !important;
+        }
+        .mermaid .relationshipLabel {
+            fill: #000000 !important;
+            color: #000000 !important;
+        }
+        .mermaid .entityLabel text {
+            fill: #000000 !important;
+            font-weight: bold !important;
+        }
+        .mermaid .attributeText text {
+            fill: #000000 !important;
+        }
+        .mermaid tspan {
+            fill: #000000 !important;
+            color: #000000 !important;
+        }
+        .mermaid svg text,
+        .mermaid svg tspan,
+        .mermaid svg .label text,
+        .mermaid svg .entityLabel text,
+        .mermaid svg .attributeText text,
+        .mermaid svg .relationshipLabel text {
+            fill: #000000 !important;
+            color: #000000 !important;
+            stroke: none !important;
+            font-weight: normal !important;
+        }
+        .mermaid svg * {
+            fill: inherit !important;
+        }
+        .mermaid svg text {
+            fill: #000000 !important;
+        }
+        .mermaid svg tspan {
+            fill: #000000 !important;
+        }
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .instructions h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .instructions p {
+            color: #555;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Moonlit Cove Resort</h1>
+        <p class="subtitle">Entity Relationship Diagram</p>
+        <div class="mermaid">
+erDiagram
+    USERS {
+        int id PK
+        varchar auth_id UK
+        varchar display_name
+        timestamp created_at
+    }
+    
+    ROOMS {
+        varchar id PK
+        varchar name
+        varchar type
+        int capacity
+        int base_price
+        text description
+        text hero_image
+    }
+    
+    ROOM_TAGS {
+        int id PK
+        varchar room_id FK
+        varchar tag
+    }
+    
+    SERVICES {
+        varchar id PK
+        varchar name
+        text description
+        int price
+    }
+    
+    BOOKINGS {
+        int id PK
+        varchar room_id FK
+        int user_id FK
+        date from_date
+        int nights
+        int guests
+        enum payment_method
+        varchar payment_ref
+        enum status
+        timestamp created_at
+    }
+    
+    BOOKING_SERVICES {
+        int booking_id PK_FK
+        varchar service_id PK_FK
+    }
+    
+    USERS ||--o{ BOOKINGS : "makes"
+    ROOMS ||--o{ BOOKINGS : "booked_in"
+    ROOMS ||--o{ ROOM_TAGS : "has"
+    BOOKINGS ||--o{ BOOKING_SERVICES : "includes"
+    SERVICES ||--o{ BOOKING_SERVICES : "selected_in"
+        </div>
+        
+        <div class="instructions">
+            <h3>📸 To Save as Image:</h3>
+            <p><strong>Method 1:</strong> Right-click on the diagram → "Save image as..." or take a screenshot</p>
+            <p><strong>Method 2:</strong> Press Cmd+Shift+4 (Mac) or Windows+Shift+S (Windows) to take a screenshot</p>
+            <p><strong>Method 3:</strong> Use browser DevTools → Right-click diagram → "Capture node screenshot"</p>
+        </div>
+    </div>
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true, 
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#ffffff',
+                primaryTextColor: '#000000',
+                primaryBorderColor: '#333333',
+                lineColor: '#333333',
+                secondaryColor: '#ffffff',
+                tertiaryColor: '#f8f9fa',
+                textColor: '#000000',
+                fontFamily: 'Arial, sans-serif',
+                fontSize: '16px',
+                noteBkgColor: '#ffffff',
+                noteTextColor: '#000000',
+                mainBkgColor: '#ffffff',
+                mainTextColor: '#000000',
+                secondBkgColor: '#f8f9fa',
+                secondTextColor: '#000000',
+                tertiaryTextColor: '#000000',
+                tertiaryBorderColor: '#333333'
+            }
+        });
+        
+        // Force text color using MutationObserver to catch when SVG is added
+        const observer = new MutationObserver(() => {
+            const svg = document.querySelector('.mermaid svg');
+            if (svg) {
+                // Get all text elements
+                const allTexts = svg.querySelectorAll('text, tspan');
+                allTexts.forEach(text => {
+                    // Remove any existing fill/stroke attributes
+                    text.removeAttribute('fill');
+                    text.removeAttribute('stroke');
+                    // Set black color
+                    text.setAttribute('fill', '#000000');
+                    text.style.fill = '#000000';
+                    text.style.color = '#000000';
+                    text.style.stroke = 'none';
+                    text.style.fontWeight = 'normal';
+                });
+                
+                // Also add a style element directly in SVG
+                let styleEl = svg.querySelector('style');
+                if (!styleEl) {
+                    styleEl = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+                    svg.insertBefore(styleEl, svg.firstChild);
+                }
+                styleEl.textContent = `
+                    text, tspan {
+                        fill: #000000 !important;
+                        stroke: none !important;
+                        color: #000000 !important;
+                    }
+                `;
+            }
+        });
+        
+        observer.observe(document.body, { childList: true, subtree: true });
+        
+        // Force text color after diagram renders - multiple attempts
+        const forceBlackText = () => {
+            const svg = document.querySelector('.mermaid svg');
+            if (svg) {
+                // Set SVG background to white
+                svg.setAttribute('style', 'background: #ffffff !important;');
+                svg.style.backgroundColor = '#ffffff';
+                
+                // Remove all fill attributes first
+                const allTexts = svg.querySelectorAll('text, tspan');
+                allTexts.forEach(text => {
+                    text.removeAttribute('fill');
+                    text.removeAttribute('stroke');
+                    text.setAttribute('fill', '#000000');
+                    text.style.setProperty('fill', '#000000', 'important');
+                    text.style.setProperty('color', '#000000', 'important');
+                    text.style.setProperty('stroke', 'none', 'important');
+                });
+                
+                // Inject style directly into SVG
+                let styleEl = svg.querySelector('style');
+                if (!styleEl) {
+                    styleEl = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+                    svg.insertBefore(styleEl, svg.firstChild);
+                }
+                styleEl.textContent = 'text, tspan { fill: #000000 !important; stroke: none !important; }';
+            }
+        };
+        
+        // Try multiple times
+        [200, 500, 1000, 1500, 2000, 3000, 5000].forEach(delay => {
+            setTimeout(forceBlackText, delay);
+        });
+        
+        // Also try on window load
+        window.addEventListener('load', () => {
+            setTimeout(forceBlackText, 100);
+            setTimeout(forceBlackText, 500);
+            setTimeout(forceBlackText, 1000);
+        });
+    </script>
+</body>
+</html>
+

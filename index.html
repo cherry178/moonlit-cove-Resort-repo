@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Moonlit Cove Resort</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="landingScreen" class="landing-screen">
+      <div class="landing-inner">
+        <div class="landing-logo">☾</div>
+        <p class="landing-kicker">Welcome to</p>
+        <h1>Moonlit Cove Resort</h1>
+        <p class="landing-subtitle">
+          Begin your serene escape. Book oceanfront suites, curated services, and moonlit experiences.
+        </p>
+        <button id="landingBookButton" class="btn accent landing-button">
+          Book Now
+        </button>
+      </div>
+    </div>
+    <div class="background-glow"></div>
+    <header class="top-nav">
+      <div class="brand">
+        <span class="moon-icon">☾</span>
+        <div class="brand-text">
+          <div class="brand-title">Moonlit Cove</div>
+          <div class="brand-subtitle">Resort &amp; Spa</div>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="#rooms">Rooms</a>
+        <a href="#services">Services</a>
+        <a href="#about">About</a>
+      </nav>
+      <button id="loginButton" class="btn primary">Login</button>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-content">
+          <h1>Escape to the Moonlit Cove</h1>
+          <p>
+            A serene oceanfront retreat where every night feels like a full
+            moon, and every stay is unforgettable.
+          </p>
+          <button id="heroBookButton" class="btn accent">
+            Book Your Stay
+          </button>
+          <div class="hero-meta">
+            <span>✓ Secure, ACID-style bookings</span>
+            <span>✓ Curated services &amp; experiences</span>
+            <span>✓ Instant confirmation</span>
+          </div>
+        </div>
+        <div class="hero-card">
+          <h2>Quick Booking</h2>
+          <form id="quickBookingForm" class="booking-form">
+            <div class="form-group">
+              <label for="checkIn">Check-in</label>
+              <input type="date" id="checkIn" required />
+            </div>
+            <div class="form-group">
+              <label for="nights">Nights</label>
+              <input
+                type="number"
+                id="nights"
+                min="1"
+                max="30"
+                value="2"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="guests">Guests</label>
+              <input
+                type="number"
+                id="guests"
+                min="1"
+                max="6"
+                value="2"
+                required
+              />
+            </div>
+            <button type="submit" class="btn primary full-width">
+              Show Available Rooms
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <section id="rooms" class="section">
+        <div class="section-header">
+          <h2>Rooms &amp; Suites</h2>
+          <p>Select a room for your chosen dates. Once booked, it cannot be double-booked.</p>
+        </div>
+        <div id="roomsContainer" class="card-grid">
+          <!-- Rooms injected by JS -->
+        </div>
+      </section>
+
+      <section id="services" class="section muted">
+        <div class="section-header">
+          <h2>Signature Services</h2>
+          <p>Add experiences to your stay. You can book with or without services.</p>
+        </div>
+        <div id="servicesContainer" class="card-grid small">
+          <!-- Services injected by JS -->
+        </div>
+      </section>
+
+      <section id="about" class="section">
+        <div class="section-header">
+          <h2>About Moonlit Cove</h2>
+          <p>
+            Nestled in a quiet cove, our resort offers ocean-facing rooms,
+            private cabanas, moonlit dinners, and spa rituals inspired by the
+            tides.
+          </p>
+        </div>
+        <div class="about-grid">
+          <div class="about-card">
+            <h3>Oceanfront Serenity</h3>
+            <p>
+              All rooms are designed to frame the horizon, letting moonlight
+              and waves lull you into deep rest.
+            </p>
+          </div>
+          <div class="about-card">
+            <h3>Thoughtful Technology</h3>
+            <p>
+              Your bookings are handled via a transaction-safe system that keeps
+              your reservation consistent and isolated.
+            </p>
+          </div>
+          <div class="about-card">
+            <h3>Curated Experiences</h3>
+            <p>
+              From spa journeys to private dinners, our services are crafted to
+              make every stay uniquely yours.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="my-bookings" class="section muted">
+        <div class="section-header">
+          <h2>Your Bookings</h2>
+          <p>View and cancel your upcoming stays at Moonlit Cove.</p>
+        </div>
+        <div id="bookingsContainer" class="bookings-list">
+          <!-- User bookings injected by JS -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Booking Drawer -->
+    <div id="bookingDrawer" class="drawer">
+      <div class="drawer-panel">
+        <button id="closeDrawer" class="icon-button close">&times;</button>
+        <h2>Confirm Your Booking</h2>
+        <div id="drawerRoomSummary" class="drawer-room-summary"></div>
+
+        <div class="drawer-section">
+          <h3>Stay Details</h3>
+          <div class="drawer-grid" id="drawerStayDetails"></div>
+        </div>
+
+        <div class="drawer-section">
+          <h3>Services (Optional)</h3>
+          <div id="drawerServices" class="drawer-services"></div>
+        </div>
+
+        <div class="drawer-section">
+          <h3>Payment</h3>
+          <div class="payment-row">
+            <span>Total</span>
+            <span id="drawerTotal" class="price-tag">$0.00</span>
+          </div>
+
+          <div class="payment-method-toggle">
+            <button
+              type="button"
+              class="payment-method-button active"
+              data-method="card"
+              id="cardMethodButton"
+            >
+              Card
+            </button>
+            <button
+              type="button"
+              class="payment-method-button"
+              data-method="upi"
+              id="upiMethodButton"
+            >
+              UPI
+            </button>
+          </div>
+
+          <div id="cardPaymentFields">
+            <div class="form-group">
+              <label for="cardNumber">Card Number</label>
+              <input
+                type="text"
+                id="cardNumber"
+                placeholder="1234 5678 9012 3456"
+                maxlength="19"
+              />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="cardExpiry">Expiry</label>
+                <input type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5" />
+              </div>
+              <div class="form-group">
+                <label for="cardCvv">CVV</label>
+                <input type="password" id="cardCvv" placeholder="123" maxlength="4" />
+              </div>
+            </div>
+          </div>
+
+          <div id="upiPaymentFields" class="hidden">
+            <div class="form-group">
+              <label for="upiId">UPI ID</label>
+              <input
+                type="text"
+                id="upiId"
+                placeholder="yourname@upi"
+              />
+            </div>
+            <p class="helper-text">
+              You will receive a payment request in your UPI app (demo only, no real payment).
+            </p>
+          </div>
+
+          <button id="confirmBookingButton" class="btn accent full-width">
+            Pay &amp; Book
+          </button>
+          <p class="helper-text">
+            This is a demo payment (no real charges). Booking is simulated but
+            respects ACID-style rules within this session.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+      <div class="modal-dialog">
+        <button id="closeLoginModal" class="icon-button close">&times;</button>
+        <h2>Welcome to Moonlit Cove</h2>
+        <p class="modal-subtitle">
+          Login with your mobile number &amp; OTP or your Gmail to continue.
+        </p>
+
+        <div class="tabs">
+          <button
+            class="tab-button active"
+            data-tab="phoneTab"
+            id="phoneTabButton"
+          >
+            Mobile &amp; OTP
+          </button>
+          <button class="tab-button" data-tab="gmailTab" id="gmailTabButton">
+            Gmail
+          </button>
+        </div>
+
+        <div id="phoneTab" class="tab active">
+          <div class="form-group">
+            <label for="phoneNumber">Mobile Number</label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              placeholder="+91 98765 43210"
+            />
+          </div>
+          <div class="form-group inline-with-button">
+            <div class="input-wrapper">
+              <label for="otpInput">OTP</label>
+              <input
+                type="text"
+                id="otpInput"
+                placeholder="Enter 6-digit OTP"
+                maxlength="6"
+              />
+            </div>
+            <button id="sendOtpButton" class="btn ghost small">Send OTP</button>
+          </div>
+          <p class="helper-text">
+            Demo: use OTP <strong>123456</strong> to login.
+          </p>
+          <button id="phoneLoginButton" class="btn primary full-width">
+            Continue
+          </button>
+        </div>
+
+        <div id="gmailTab" class="tab">
+          <div class="form-group">
+            <label for="gmailInput">Gmail Address</label>
+            <input
+              type="email"
+              id="gmailInput"
+              placeholder="you@example.com"
+            />
+          </div>
+          <button id="gmailLoginButton" class="btn primary full-width">
+            Continue with Google Mail
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gallery Modal -->
+    <div id="galleryModal" class="modal gallery-modal">
+      <div class="gallery-dialog">
+        <button id="closeGalleryModal" class="icon-button close">&times;</button>
+        <div class="gallery-room-name" id="galleryRoomName"></div>
+        <div class="gallery-main">
+          <button class="gallery-nav prev" id="galleryPrev">&#10094;</button>
+          <img id="galleryImage" src="" alt="Room photo" />
+          <button class="gallery-nav next" id="galleryNext">&#10095;</button>
+        </div>
+        <div class="gallery-thumbnails" id="galleryThumbnails"></div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+  </body>
+  </html>
+
+
