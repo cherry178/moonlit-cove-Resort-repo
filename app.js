@@ -122,38 +122,45 @@ function showToast(message, type = "success") {
 async function apiRequest(endpoint, options = {}) {
   // Check if backend URL is configured
   if (API_BASE_URL.includes("YOUR_BACKEND_URL")) {
-    throw new Error("Backend not configured. Please deploy your backend and update API_BASE_URL in app.js");
+    throw new Error("Backend not configured");
   }
 
   try {
     const url = `${API_BASE_URL}${endpoint}`;
-    console.log("API Request:", url, options);
+    console.log("🌐 API Request:", url);
+    
+    // Add timeout for better error handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
     
     const response = await fetch(url, {
       headers: {
         "Content-Type": "application/json",
         ...options.headers,
       },
+      signal: controller.signal,
       ...options,
     });
 
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
       const error = await response.json().catch(() => ({ error: "Request failed" }));
-      console.error("API Error Response:", error);
+      console.error("❌ API Error:", error);
       throw new Error(error.error || `HTTP ${response.status}`);
     }
 
     const data = await response.json();
-    console.log("API Response:", data);
+    console.log("✅ API Success");
     return data;
   } catch (error) {
-    console.error("API request failed:", error);
-    if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError") || error.message.includes("not configured")) {
-      if (isLocalhost) {
-        throw new Error("Cannot connect to backend. Make sure the server is running on port 4000.");
-      } else {
-        throw new Error("Backend server is not available. Please deploy your backend to enable full functionality. The site is currently showing demo data.");
-      }
+    console.error("❌ API request failed:", error.message);
+    // Always throw a simple error that can be caught by loadRooms/loadServices
+    if (error.name === 'AbortError') {
+      throw new Error("Backend timeout");
+    }
+    if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError") || error.message.includes("not configured") || error.message.includes("timeout")) {
+      throw new Error("Backend not available");
     }
     throw error;
   }
@@ -183,8 +190,7 @@ async function loadRooms() {
     
     if (!data || !data.rooms || !Array.isArray(data.rooms)) {
       console.error("Invalid rooms data:", data);
-      showToast("Failed to load rooms. Invalid response from server.", "error");
-      return [];
+      throw new Error("Invalid response from server");
     }
     
     rooms = data.rooms.map((room) => {
@@ -205,22 +211,23 @@ async function loadRooms() {
       };
     });
     
+    console.log("✅ Rooms loaded from backend:", rooms.length);
     return rooms;
   } catch (error) {
-    console.error("Error loading rooms:", error);
-    // Fallback to demo data if backend is unavailable
-    if (API_BASE_URL.includes("YOUR_BACKEND_URL") || error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-      console.warn("Backend unavailable, using fallback demo data");
-      rooms = fallbackRooms.map((room) => ({
-        ...room,
-        available: true,
-        ...roomGalleries[room.id], // Add gallery images
-      }));
+    console.error("Error loading rooms from backend:", error);
+    // ALWAYS fallback to demo data to ensure rooms are shown
+    console.warn("⚠️ Backend unavailable, using fallback demo data");
+    rooms = fallbackRooms.map((room) => ({
+      ...room,
+      available: true,
+      ...roomGalleries[room.id], // Add gallery images
+    }));
+    
+    // Only show toast if not on localhost (to avoid spam during development)
+    if (!isLocalhost) {
       showToast("Showing demo rooms. Backend not connected.", "error");
-      return rooms;
     }
-    showToast("Failed to load rooms. Please try again.", "error");
-    return [];
+    return rooms; // Always return rooms, never empty array
   }
 }
 
@@ -235,17 +242,14 @@ const fallbackServices = [
 async function loadServices() {
   try {
     const data = await apiRequest("/services");
-    services = data.services;
+    services = data.services || [];
+    console.log("✅ Services loaded from backend:", services.length);
     return services;
   } catch (error) {
-    // Fallback to demo data if backend is unavailable
-    if (API_BASE_URL.includes("YOUR_BACKEND_URL") || error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-      console.warn("Backend unavailable, using fallback demo services");
-      services = fallbackServices;
-      return services;
-    }
-    showToast("Failed to load services. Please try again.", "error");
-    return [];
+    // ALWAYS fallback to demo data to ensure services are shown
+    console.warn("⚠️ Backend unavailable, using fallback demo services");
+    services = fallbackServices;
+    return services; // Always return services, never empty array
   }
 }
 
@@ -433,9 +437,15 @@ function renderRooms() {
   container.innerHTML = "<p class='helper-text'>Loading rooms...</p>";
 
   loadRooms().then(() => {
+    // Always show rooms - fallback ensures we always have data
     if (rooms.length === 0) {
-      container.innerHTML = "<p class='helper-text'>No rooms available. Please check if the backend is running.</p>";
-      return;
+      // If somehow we have no rooms, use fallback immediately
+      console.warn("No rooms found, using fallback");
+      rooms = fallbackRooms.map((room) => ({
+        ...room,
+        available: true,
+        ...roomGalleries[room.id],
+      }));
     }
     
     container.innerHTML = "";
