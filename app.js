@@ -5,7 +5,7 @@
 const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const API_BASE_URL = isLocalhost 
   ? "http://localhost:4000/api"
-  : "YOUR_BACKEND_URL/api"; // TODO: Replace with your deployed backend URL
+  : "https://sina-noninjurious-oda.ngrok-free.dev/api";
 
 // Room gallery images mapping (not stored in backend)
 const roomGalleries = {
