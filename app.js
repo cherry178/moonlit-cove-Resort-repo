@@ -120,6 +120,11 @@ function showToast(message, type = "success") {
 // ---- API Helpers ----
 
 async function apiRequest(endpoint, options = {}) {
+  // Check if backend URL is configured
+  if (API_BASE_URL.includes("YOUR_BACKEND_URL")) {
+    throw new Error("Backend not configured. Please deploy your backend and update API_BASE_URL in app.js");
+  }
+
   try {
     const url = `${API_BASE_URL}${endpoint}`;
     console.log("API Request:", url, options);
@@ -143,8 +148,12 @@ async function apiRequest(endpoint, options = {}) {
     return data;
   } catch (error) {
     console.error("API request failed:", error);
-    if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
-      throw new Error("Cannot connect to backend. Make sure the server is running on port 4000.");
+    if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError") || error.message.includes("not configured")) {
+      if (isLocalhost) {
+        throw new Error("Cannot connect to backend. Make sure the server is running on port 4000.");
+      } else {
+        throw new Error("Backend server is not available. Please deploy your backend to enable full functionality. The site is currently showing demo data.");
+      }
     }
     throw error;
   }
@@ -260,22 +269,34 @@ async function createBooking(roomId, fromDate, nights, guests, serviceIds, payme
     throw new Error("User not logged in");
   }
 
-  const response = await apiRequest("/bookings", {
-    method: "POST",
-    body: JSON.stringify({
-      roomId,
-      userAuthId: currentUser.id,
-      userDisplayName: currentUser.displayName,
-      fromDate,
-      nights,
-      guests,
-      serviceIds: Array.from(serviceIds),
-      paymentMethod,
-      paymentRef,
-    }),
-  });
+  // Check if backend is available
+  if (API_BASE_URL.includes("YOUR_BACKEND_URL") || API_BASE_URL.includes("localhost") && !isLocalhost) {
+    throw new Error("Backend not connected. Please deploy the backend to enable bookings. See DEPLOYMENT_GUIDE.md for instructions.");
+  }
 
-  return response;
+  try {
+    const response = await apiRequest("/bookings", {
+      method: "POST",
+      body: JSON.stringify({
+        roomId,
+        userAuthId: currentUser.id,
+        userDisplayName: currentUser.displayName,
+        fromDate,
+        nights,
+        guests,
+        serviceIds: Array.from(serviceIds),
+        paymentMethod,
+        paymentRef,
+      }),
+    });
+
+    return response;
+  } catch (error) {
+    if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError") || error.message.includes("Cannot connect")) {
+      throw new Error("Cannot connect to backend server. Please make sure the backend is deployed and running. Bookings cannot be saved without a backend connection.");
+    }
+    throw error;
+  }
 }
 
 async function cancelBooking(bookingId) {
