@@ -4,3 +4,4 @@
 
 Moonlit Cove backend listening on port 4000
 Database initialized and seeded successfully
+Service sunset-cruise not found in database, skipping
