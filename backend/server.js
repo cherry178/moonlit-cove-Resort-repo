@@ -238,13 +238,22 @@ app.post("/api/bookings", async (req, res) => {
 
     const bookingId = result.insertId;
 
-    // Insert booking services if any
+    // Insert booking services if any (validate service exists first)
     if (Array.isArray(serviceIds) && serviceIds.length > 0) {
       for (const serviceId of serviceIds) {
-        await connection.query(
-          "INSERT INTO booking_services (booking_id, service_id) VALUES (?, ?)",
-          [bookingId, serviceId]
+        // Check if service exists before inserting
+        const [serviceCheck] = await connection.query(
+          "SELECT id FROM services WHERE id = ?",
+          [serviceId]
         );
+        if (serviceCheck.length > 0) {
+          await connection.query(
+            "INSERT INTO booking_services (booking_id, service_id) VALUES (?, ?)",
+            [bookingId, serviceId]
+          );
+        } else {
+          console.warn(`Service ${serviceId} not found in database, skipping`);
+        }
       }
     }
 
