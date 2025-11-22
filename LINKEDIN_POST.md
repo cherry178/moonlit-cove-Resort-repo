@@ -47,7 +47,7 @@ Just completed building a full-stack Resort Management System! 🏨
 Features:
 ✅ User authentication & booking system
 ✅ Room & service reservations
-✅ Payment processing (Card/UPI)
+✅ Payment processing (UPI)
 ✅ Real-time availability checking
 ✅ ACID-compliant database transactions
 
