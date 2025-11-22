@@ -662,26 +662,33 @@ function updateDrawerTotal() {
 async function renderBookings() {
   const container = qs("#bookingsContainer");
   if (!container) {
-    console.warn("Bookings container not found");
+    console.warn("❌ Bookings container not found - element #bookingsContainer missing");
     return;
   }
+  
+  console.log("🔄 Rendering bookings...");
   container.innerHTML = "<p class='helper-text'>Loading bookings...</p>";
 
   if (!currentUser) {
+    console.log("⚠️ No user logged in");
     container.innerHTML =
       '<p class="helper-text">Login to see and manage your bookings.</p>';
     return;
   }
 
+  console.log("👤 Current user:", currentUser.id);
   await loadBookings();
-  console.log("Rendering bookings:", bookings.length);
+  console.log("📋 Bookings to render:", bookings.length, bookings);
 
   container.innerHTML = "";
   if (bookings.length === 0) {
+    console.log("ℹ️ No bookings found for user");
     container.innerHTML =
       '<p class="helper-text">You have no bookings yet. Book a room to see it here.</p>';
     return;
   }
+  
+  console.log("✅ Rendering", bookings.length, "bookings");
 
   // Index rooms for quick lookup
   const roomById = {};
