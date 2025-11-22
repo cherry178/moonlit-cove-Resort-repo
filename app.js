@@ -253,17 +253,26 @@ async function loadServices() {
 
 async function loadBookings() {
   if (!currentUser) {
+    console.log("⚠️ No user logged in, cannot load bookings");
     bookings = [];
     return [];
   }
   try {
-    console.log("Loading bookings for user:", currentUser.id);
-    const data = await apiRequest(`/bookings?userAuthId=${encodeURIComponent(currentUser.id)}`);
+    const userAuthId = currentUser.id;
+    console.log("🔍 Loading bookings for user:", userAuthId);
+    const url = `${API_BASE_URL}/bookings?userAuthId=${encodeURIComponent(userAuthId)}`;
+    console.log("📡 API URL:", url);
+    
+    const data = await apiRequest(`/bookings?userAuthId=${encodeURIComponent(userAuthId)}`);
     bookings = data.bookings || [];
-    console.log("✅ Bookings loaded:", bookings.length, bookings);
+    console.log("✅ Bookings loaded successfully:", bookings.length, "bookings");
+    if (bookings.length > 0) {
+      console.log("📋 Booking details:", bookings);
+    }
     return bookings;
   } catch (error) {
     console.error("❌ Error loading bookings:", error.message);
+    console.error("Full error:", error);
     // Don't show error toast - just silently fail and show empty bookings
     // This is normal if backend is not available or user has no bookings
     bookings = [];
@@ -338,13 +347,18 @@ function setUser(user) {
     loginButton.classList.add("ghost");
     showToast(`Welcome, ${user.displayName || "Guest"}!`, "success");
     dismissLandingScreen();
-    loadBookings().then(() => renderBookings());
+    // Load and render bookings immediately after login
+    console.log("User logged in:", user.id);
+    loadBookings().then(() => {
+      console.log("Bookings loaded after login:", bookings.length);
+      renderBookings();
+    });
   } else {
     loginButton.textContent = "Login";
     loginButton.classList.remove("ghost");
     loginButton.classList.add("primary");
     const bookingsContainer = qs("#bookingsContainer");
-    if (bookingsContainer) bookingsContainer.innerHTML = "";
+    if (bookingsContainer) bookingsContainer.innerHTML = '<p class="helper-text">Login to see and manage your bookings.</p>';
     bookings = [];
   }
 }
