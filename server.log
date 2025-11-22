@@ -4,23 +4,3 @@
 
 Moonlit Cove backend listening on port 4000
 Database initialized and seeded successfully
-Error creating booking: Error: Cannot add or update a child row: a foreign key constraint fails (`moonlit_cove_resort`.`booking_services`, CONSTRAINT `booking_services_ibfk_2` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`))
-    at PromisePoolConnection.query (/Users/charishmarasineni/Resort/node_modules/mysql2/lib/promise/connection.js:29:22)
-    at /Users/charishmarasineni/Resort/backend/server.js:244:26
-    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
-  code: 'ER_NO_REFERENCED_ROW_2',
-  errno: 1452,
-  sql: "INSERT INTO booking_services (booking_id, service_id) VALUES (10, 'spa-journey')",
-  sqlState: '23000',
-  sqlMessage: 'Cannot add or update a child row: a foreign key constraint fails (`moonlit_cove_resort`.`booking_services`, CONSTRAINT `booking_services_ibfk_2` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`))'
-}
-Error creating booking: Error: Cannot add or update a child row: a foreign key constraint fails (`moonlit_cove_resort`.`booking_services`, CONSTRAINT `booking_services_ibfk_2` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`))
-    at PromisePoolConnection.query (/Users/charishmarasineni/Resort/node_modules/mysql2/lib/promise/connection.js:29:22)
-    at /Users/charishmarasineni/Resort/backend/server.js:244:26
-    at process.processTicksAndRejections (node:internal/process/task_queues:103:5) {
-  code: 'ER_NO_REFERENCED_ROW_2',
-  errno: 1452,
-  sql: "INSERT INTO booking_services (booking_id, service_id) VALUES (11, 'spa-journey')",
-  sqlState: '23000',
-  sqlMessage: 'Cannot add or update a child row: a foreign key constraint fails (`moonlit_cove_resort`.`booking_services`, CONSTRAINT `booking_services_ibfk_2` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`))'
-}
