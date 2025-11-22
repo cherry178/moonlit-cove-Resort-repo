@@ -136,6 +136,7 @@ async function apiRequest(endpoint, options = {}) {
     const response = await fetch(url, {
       headers: {
         "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true", // Skip ngrok warning page
         ...options.headers,
       },
       signal: controller.signal,
@@ -143,6 +144,16 @@ async function apiRequest(endpoint, options = {}) {
     });
 
     clearTimeout(timeoutId);
+
+    // Check if response is HTML (ngrok warning page) instead of JSON
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      const text = await response.text();
+      if (text.includes("<!DOCTYPE") || text.includes("<html")) {
+        console.error("❌ Received HTML instead of JSON (likely ngrok warning page)");
+        throw new Error("Backend returned HTML instead of JSON. Check ngrok tunnel.");
+      }
+    }
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ error: "Request failed" }));
