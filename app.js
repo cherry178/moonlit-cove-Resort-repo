@@ -133,12 +133,15 @@ async function apiRequest(endpoint, options = {}) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
     
+    // Prepare headers - ngrok-skip-browser-warning must be included
+    const headers = {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true", // Skip ngrok warning page
+      ...options.headers,
+    };
+    
     const response = await fetch(url, {
-      headers: {
-        "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "true", // Skip ngrok warning page
-        ...options.headers,
-      },
+      headers: headers,
       signal: controller.signal,
       ...options,
     });
