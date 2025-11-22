@@ -223,10 +223,8 @@ async function loadRooms() {
       ...roomGalleries[room.id], // Add gallery images
     }));
     
-    // Only show toast if not on localhost (to avoid spam during development)
-    if (!isLocalhost) {
-      showToast("Showing demo rooms. Backend not connected.", "error");
-    }
+    // Don't show error toast - rooms will still display from fallback data
+    // This is normal if backend is temporarily unavailable
     return rooms; // Always return rooms, never empty array
   }
 }
