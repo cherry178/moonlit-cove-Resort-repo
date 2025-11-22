@@ -1,30 +1,36 @@
 const mysql = require("mysql2/promise");
 
-// Create MySQL connection pool
-const pool = mysql.createPool({
-  host: "localhost",
-  user: "root",
-  password: "Root@123", // Leave empty if no password set, or set your password
-  database: "moonlit_cove_resort",
+// Database configuration with environment variable support for deployment
+const dbConfig = {
+  host: process.env.DB_HOST || "localhost",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "Root@123",
+  database: process.env.DB_NAME || "moonlit_cove_resort",
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
-});
+};
+
+// Create MySQL connection pool
+const pool = mysql.createPool(dbConfig);
 
 // Initialize database and seed data
 async function initializeDb() {
   try {
-    // Create database if it doesn't exist
-    const adminPool = mysql.createPool({
-      host: "localhost",
-      user: "root",
-      password: "Root@123",
-      waitForConnections: true,
-      connectionLimit: 10,
-    });
+    // Create database if it doesn't exist (only for local development)
+    // In production, database is usually pre-created
+    if (process.env.NODE_ENV !== 'production') {
+      const adminPool = mysql.createPool({
+        host: dbConfig.host,
+        user: dbConfig.user,
+        password: dbConfig.password,
+        waitForConnections: true,
+        connectionLimit: 10,
+      });
 
-    await adminPool.query("CREATE DATABASE IF NOT EXISTS moonlit_cove_resort");
-    await adminPool.end();
+      await adminPool.query(`CREATE DATABASE IF NOT EXISTS ${dbConfig.database}`);
+      await adminPool.end();
+    }
 
     // Create tables
     await pool.query(`
