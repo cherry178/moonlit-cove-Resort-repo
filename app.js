@@ -691,14 +691,19 @@ async function renderBookings() {
   }
 
   console.log("👤 Current user:", currentUser.id);
+  console.log("🌐 API Base URL:", API_BASE_URL);
   await loadBookings();
   console.log("📋 Bookings to render:", bookings.length, bookings);
 
   container.innerHTML = "";
   if (bookings.length === 0) {
     console.log("ℹ️ No bookings found for user");
+    // Show helpful message with user ID for debugging
     container.innerHTML =
-      '<p class="helper-text">You have no bookings yet. Book a room to see it here.</p>';
+      `<p class="helper-text">You have no bookings yet. Book a room to see it here.</p>
+       <p class="helper-text" style="font-size: 0.85em; margin-top: 8px; color: #888;">
+         Debug: Logged in as ${currentUser.id} | API: ${API_BASE_URL}
+       </p>`;
     return;
   }
   
