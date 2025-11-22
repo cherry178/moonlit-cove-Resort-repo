@@ -261,9 +261,13 @@ async function loadBookings() {
   try {
     const data = await apiRequest(`/bookings?userAuthId=${encodeURIComponent(currentUser.id)}`);
     bookings = data.bookings || [];
+    console.log("✅ Bookings loaded:", bookings.length);
     return bookings;
   } catch (error) {
-    showToast("Failed to load bookings. Please try again.", "error");
+    console.warn("⚠️ Could not load bookings:", error.message);
+    // Don't show error toast - just silently fail and show empty bookings
+    // This is normal if backend is not available or user has no bookings
+    bookings = [];
     return [];
   }
 }
