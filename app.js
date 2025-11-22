@@ -694,7 +694,9 @@ async function renderBookings() {
     .sort((a, b) => new Date(a.from_date) - new Date(b.from_date))
     .forEach((booking) => {
       const room = roomById[booking.room_id];
-      const checkInDate = new Date(booking.from_date);
+      // Handle date - can be ISO string or date string
+      const fromDateStr = booking.from_date.split('T')[0]; // Get just the date part
+      const checkInDate = new Date(fromDateStr);
       const checkoutDate = new Date(checkInDate);
       checkoutDate.setDate(checkoutDate.getDate() + booking.nights);
 
